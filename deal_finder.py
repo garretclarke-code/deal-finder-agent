@@ -14,22 +14,24 @@ soup = BeautifulSoup(response.text, "html.parser")
 titles = []
 links = []
 
-for listing in soup.find_all("a", href=True):
-    if "/business-for-sale/" in listing["href"]:
-        title = listing.text.strip()
-        link = "https://www.bizbuysell.com" + listing["href"]
+# find listing cards
+for card in soup.select("a[href*='/business-for-sale/']"):
+    title = card.get_text(strip=True)
+    link = card.get("href")
 
-        if title != "":
-            titles.append(title)
-            links.append(link)
+    if title and link:
+        if not link.startswith("http"):
+            link = "https://www.bizbuysell.com" + link
+
+        titles.append(title)
+        links.append(link)
 
 data = pd.DataFrame({
     "Business": titles,
     "Link": links
-})
-
-data = data.drop_duplicates()
+}).drop_duplicates()
 
 data.to_csv("business_leads.csv", index=False)
 
+print("Found", len(data), "listings")
 print("Done. Leads saved to business_leads.csv")
