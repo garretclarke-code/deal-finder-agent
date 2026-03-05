@@ -16,8 +16,12 @@ links = []
 
 for listing in soup.find_all("a", href=True):
     if "/business-for-sale/" in listing["href"]:
-        titles.append(listing.text.strip())
-        links.append("https://www.bizbuysell.com" + listing["href"])
+        title = listing.text.strip()
+        link = "https://www.bizbuysell.com" + listing["href"]
+
+        if title != "":
+            titles.append(title)
+            links.append(link)
 
 data = pd.DataFrame({
     "Business": titles,
