@@ -9,7 +9,6 @@ import time
 url = "https://www.bizbuysell.com/georgia-businesses-for-sale/"
 
 options = Options()
-options.add_argument("--headless")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
