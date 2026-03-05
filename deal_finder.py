@@ -9,25 +9,30 @@ import time
 url = "https://www.bizbuysell.com/georgia-businesses-for-sale/"
 
 options = Options()
-options.add_argument("--headless")  # runs browser without opening a window
+options.add_argument("--headless")
 
 driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
 driver.get(url)
-time.sleep(5)  # allow page to fully load
+time.sleep(8)  # allow listings to load
 
 titles = []
 links = []
 
-cards = driver.find_elements(By.CSS_SELECTOR, "a[href*='/business-for-sale/']")
+# grab all listing cards
+cards = driver.find_elements(By.CSS_SELECTOR, ".listingResult")
 
 for card in cards:
-    title = card.text.strip()
-    link = card.get_attribute("href")
+    try:
+        title_element = card.find_element(By.CSS_SELECTOR, "h2 a")
+        title = title_element.text.strip()
+        link = title_element.get_attribute("href")
 
-    if title:
         titles.append(title)
         links.append(link)
+
+    except:
+        pass
 
 driver.quit()
 
