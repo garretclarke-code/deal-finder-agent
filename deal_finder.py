@@ -2,29 +2,29 @@ import requests
 from bs4 import BeautifulSoup
 import pandas as pd
 
-url = "https://www.bizbuysell.com/georgia-businesses-for-sale/"
+url = "https://www.bizbuysell.com/georgia-businesses-for-sale/?q=Y2Zmcm9tPTc1MDAwMCZjZnRvPTMwMDAwMDA="
 
 headers = {
     "User-Agent": "Mozilla/5.0"
 }
 
 response = requests.get(url, headers=headers)
+
 soup = BeautifulSoup(response.text, "html.parser")
 
 titles = []
 links = []
 
-# find listing cards
-for card in soup.select("a[href*='/business-for-sale/']"):
-    title = card.get_text(strip=True)
-    link = card.get("href")
+for listing in soup.find_all("a", href=True):
+    href = listing["href"]
 
-    if title and link:
-        if not link.startswith("http"):
-            link = "https://www.bizbuysell.com" + link
+    if "/business-for-sale/" in href:
+        title = listing.get_text(strip=True)
 
-        titles.append(title)
-        links.append(link)
+        if title:
+            link = "https://www.bizbuysell.com" + href
+            titles.append(title)
+            links.append(link)
 
 data = pd.DataFrame({
     "Business": titles,
