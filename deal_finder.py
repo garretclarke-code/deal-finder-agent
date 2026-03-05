@@ -1,30 +1,35 @@
-import requests
-from bs4 import BeautifulSoup
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+from webdriver_manager.chrome import ChromeDriverManager
 import pandas as pd
+import time
 
-url = "https://www.bizbuysell.com/georgia-businesses-for-sale/?q=Y2Zmcm9tPTc1MDAwMCZjZnRvPTMwMDAwMDA="
+url = "https://www.bizbuysell.com/georgia-businesses-for-sale/"
 
-headers = {
-    "User-Agent": "Mozilla/5.0"
-}
+options = Options()
+options.add_argument("--headless")  # runs browser without opening a window
 
-response = requests.get(url, headers=headers)
+driver = webdriver.Chrome(service=Service(ChromeDriverManager().install()), options=options)
 
-soup = BeautifulSoup(response.text, "html.parser")
+driver.get(url)
+time.sleep(5)  # allow page to fully load
 
 titles = []
 links = []
 
-for listing in soup.find_all("a", href=True):
-    href = listing["href"]
+cards = driver.find_elements(By.CSS_SELECTOR, "a[href*='/business-for-sale/']")
 
-    if "/business-for-sale/" in href:
-        title = listing.get_text(strip=True)
+for card in cards:
+    title = card.text.strip()
+    link = card.get_attribute("href")
 
-        if title:
-            link = "https://www.bizbuysell.com" + href
-            titles.append(title)
-            links.append(link)
+    if title:
+        titles.append(title)
+        links.append(link)
+
+driver.quit()
 
 data = pd.DataFrame({
     "Business": titles,
